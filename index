@@ -1,0 +1,258 @@
+# include<stdio.h>
+# include<stdlib.h>
+# include<conio.h>
+# include<string.h>
+# include<ctype.h>
+# define N  5
+
+void Menu(void);
+void Create(void);
+void View(void);
+void Swap(void);
+void Kill(void);
+void communicate(void);
+char Redo(void);
+
+struct process
+{
+	int id;
+	int level;
+	int size;
+	char message[20];
+	bool live;
+};
+
+struct process in[N], out;
+int num=0;
+int main()
+{
+	char action;
+	while(1)
+	{
+		system("cls");
+		Menu();
+		scanf("%c",&action);
+		fflush(stdin);
+		system("cls");
+		switch(action)
+		{
+		case '1':
+			while(1)
+			{
+				Create();
+				if(Redo()=='a')
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}
+			}
+			break;
+			case '2':
+			while(1)
+			{
+			View();
+				if(Redo()=='a')
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}
+			}
+			break;
+			case '3':
+			while(1)
+			{
+				Swap();
+				if(Redo()=='a')
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}
+			}
+			break;
+			case '4':
+			while(1)
+			{
+				Kill();
+				if(Redo()=='a')
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}
+			}
+			break;
+			case '5':
+			while(1)
+			{
+				communicate();
+				if(Redo()=='a')
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}
+			}
+			break;
+			case '6':
+				exit(0);
+			default:
+				printf("没有对应的菜单,请重新输入");
+		}
+	}
+	return 0;
+}
+void Menu()
+{
+printf("\n*******************************************");
+printf("\n*******************************************");
+printf("\n       1.创建新的进程      2.查看运行进程     ");
+printf("\n       3.换出某个进程      4.杀死运行进程     ");
+printf("\n       5.进程之间通信      6.退出系统         ");
+printf("\n*******************************************");
+printf("\n请选择（1～6）");
+
+}
+void Create(void)
+{if(num>=N)
+{
+	printf(" 缓存区已满!请杀死或者换出一个进程\n");
+}
+else
+{
+	printf("请输入新的进程的ID: \n");
+	scanf("%d",&in[num].id);
+	printf("请输入新的进程的优先级: \n");
+	scanf("%d",&in[num].level);
+	printf("请输入新的进程的大小: \n");
+	scanf("%d",&in[num].size);
+	printf("请输入新的进程的信息: \n");
+	scanf("%s",&in[num].message);
+	in[num].live=true;
+	++num;
+}
+}
+void View(void)
+{
+	int id_view;
+	printf("请输入要查看的进程ID: \n");
+	scanf("%d",&id_view);
+	if(id_view>=0 && id_view<N && in[id_view].live==true)
+	{
+		printf("进程的ID: %d\n", in[id_view].id);
+		printf("进程的优先级: %d\n", in[id_view].level);
+		printf("进程的大小: %d\n", in[id_view].size);
+		printf("进程的信息: %s\n", in[id_view].message);
+	}
+	else
+	{
+		printf("要查看的进程不存在...");
+	
+	}
+
+}
+void Swap(void)
+{
+	int id_swapin, id_swapout;
+	printf("请输入要换入的进程ID");
+	scanf("%d",&id_swapin);
+	printf("请输入要换出的进程ID: \n");
+	scanf("%d",&id_swapout);
+    if(id_swapout>=0 && id_swapout<N && in[id_swapout].live==true)
+	{
+		if(in[id_swapin].level > in[id_swapout].level)
+		{
+			out.id=in[id_swapout].id;
+            out.level=in[id_swapout].level;
+	    	out.size=in[id_swapout].size;
+		    strcpy(out.message,in[id_swapout].message);
+
+			in[id_swapout].id=in[id_swapin].id;
+            in[id_swapout].level=in[id_swapin].level ;
+	        in[id_swapout].size=in[id_swapin].size;
+		    strcpy(in[id_swapout].message,in[id_swapin].message);
+			in[id_swapin].id=out.id;
+			in[id_swapin].level=out.level;
+                        in[id_swapin].size=out.size;
+			strcpy(in[id_swapout].message,out.message);
+		}
+		else
+		{
+			printf("要换入的进程的优先级不够...");	
+		}
+	}
+	else
+	{
+		printf("要换出的进程不存在...");
+	}
+}
+void Kill(void)
+{
+	int id_kill;
+	printf("请输入要杀死的进程ID");
+	scanf("%d",&id_kill);
+	if(id_kill>=0 && id_kill<N && in[id_kill].live==true)
+	{
+		in[id_kill].live=false;
+	}
+	else
+	{
+		printf("进程不存在...");
+	}
+}
+void communicate(void)
+{
+	int id_comm1, id_comm2;
+	char buffer[20];
+	printf("请输入通信源进程ID: \n");
+	scanf("%d", &id_comm1);
+    printf("请输入通信目的进程ID: \n");
+	scanf("%d", &id_comm2);
+		if(id_comm1>=0 && id_comm1<N && in[id_comm1].live==true)
+		{
+			strcpy(buffer,in[id_comm1].message);
+			strcpy(in[id_comm1].message,in[id_comm2].message);
+			strcpy(in[id_comm2].message,buffer);
+			printf("源进程的信息 %s", in[id_comm2].message);
+			printf("目标进程的信息 %s", in[id_comm1].message);
+
+		}
+		else
+		{
+			printf("要操作的进程不存在...\n");
+		}
+}
+char Redo()
+{
+	char action;
+	printf("\n接下来你希望:\n");
+	printf("a.继续当前操作\n");
+	printf("b.返回主菜单\n");
+	while(1)
+	{
+		fflush(stdin);
+			scanf("%c",&action);
+				fflush(stdin);
+				if(action!='a' && action!='b')
+	
+	{
+		printf("没有相应的菜单,请重新选择....");
+	}
+	else
+	{
+		return action;
+	}
+}
+}
